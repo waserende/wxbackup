@@ -1,7 +1,7 @@
 name: Build fnOS FPK
 
 on:
-  workflow_dispatch: # 这行代码允许你手动点击运行
+  workflow_dispatch: # 允许手动点击运行
 
 jobs:
   build:
@@ -22,9 +22,11 @@ jobs:
 
       - name: Download and setup fnpack
         run: |
-          wget https://developer.fnnas.com/assets/fnpack-1.2.3-linux-amd64
-          chmod +x fnpack-1.2.3-linux-amd64
-          sudo mv fnpack-1.2.3-linux-amd64 /usr/local/bin/fnpack
+          # 更新为飞牛静态资源服务器的有效地址，并直接重命名为 fnpack
+          wget -O fnpack https://static2.fnnas.com/fnpack/fnpack-1.2.3-linux-amd64
+          chmod +x fnpack
+          sudo mv fnpack /usr/local/bin/fnpack
+          fnpack --help
 
       - name: Build FPK
         run: |
