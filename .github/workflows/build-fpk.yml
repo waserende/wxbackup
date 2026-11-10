@@ -1,0 +1,38 @@
+name: Build fnOS FPK
+
+on:
+  workflow_dispatch: # 这行代码允许你手动点击运行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Compile Go binary (x86_64)
+        run: |
+          mkdir -p deploy/fnos/app/bin
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o deploy/fnos/app/bin/wxbackup ./cmd/server
+
+      - name: Download and setup fnpack
+        run: |
+          wget https://developer.fnnas.com/assets/fnpack-1.2.3-linux-amd64
+          chmod +x fnpack-1.2.3-linux-amd64
+          sudo mv fnpack-1.2.3-linux-amd64 /usr/local/bin/fnpack
+
+      - name: Build FPK
+        run: |
+          chmod +x deploy/fnos/cmd/* deploy/fnos/app/ui/index.cgi || true
+          fnpack build --directory deploy/fnos
+
+      - name: Upload FPK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wxbackup-fpk
+          path: "*.fpk"
